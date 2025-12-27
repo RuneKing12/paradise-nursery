@@ -1,45 +1,58 @@
-import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../redux/CartSlice";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addItem } from "../redux/CartSlice";
 
-const plants = [
-  { id: 1, name: "Aloe Vera", price: 200, img: "https://www.niehs.nih.gov/sites/default/files/health/assets/images/aloe_leaf.jpg" },
-  { id: 2, name: "Snake Plant", price: 300, img: "https://m.media-amazon.com/images/I/715ow8JqF8L._SY879_.jpg" },
-  { id: 3, name: "Peace Lily", price: 250, img: "https://m.media-amazon.com/images/I/518WgiCU3FL._AC_UF1000,1000_QL80_.jpg" },
-  { id: 4, name: "Money Plant", price: 180, img: "https://gachwala.in/wp-content/uploads/2022/06/IMAGE-1-13.webp" },
-  { id: 5, name: "Spider Plant", price: 220, img: "https://nurserylive.com/cdn/shop/files/spider-plant_e45f05e5-e27c-49fb-b24d-a12b47c688f0.jpg?v=1751755176" },
-  { id: 6, name: "Rubber Plant", price: 350, img: "https://m.media-amazon.com/images/I/512GDQH0dcL._AC_UF1000,1000_QL80_.jpg" }
-];
+const productsData = {
+  "House Plants": [
+    { id: 1, name: "Aloe Vera", price: 200, img: "/images/aloe_vera.jpg" },
+    { id: 2, name: "Snake Plant", price: 250, img: "/images/snake_plant.jpg" },
+    { id: 3, name: "Peace Lily", price: 300, img: "/images/peace_lily.jpg" },
+  ],
+  "Flowering Plants": [
+    { id: 4, name: "Orchid", price: 400, img: "/images/orchid.jpg" },
+    { id: 5, name: "Jasmine", price: 350, img: "/images/jasmine.jpg" },
+    { id: 6, name: "Hibiscus", price: 300, img: "/images/hibiscus.jpg" },
+  ],
+  "Succulents": [
+    { id: 7, name: "Echeveria", price: 150, img: "/images/echeveria.jpg" },
+    { id: 8, name: "Crassula", price: 180, img: "/images/crassula.jpg" },
+    { id: 9, name: "Sedum", price: 120, img: "/images/sedum.jpg" },
+  ],
+};
 
-function ProductList() {
+const ProductList = () => {
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.items);
+  const [addedItems, setAddedItems] = useState([]);
+
+  const handleAddToCart = (product) => {
+    dispatch(addItem(product));
+    setAddedItems([...addedItems, product.id]);
+  };
 
   return (
     <div className="products">
-      <div className="category">
-        <h2>House Plants</h2>
-
-        <div className="product-grid">
-          {plants.map((p) => {
-            const added = cartItems.find((i) => i.id === p.id);
-            return (
-              <div className="product-card" key={p.id}>
-                <img src={p.img} />
-                <h3>{p.name}</h3>
-                <p>₹{p.price}</p>
+      {Object.entries(productsData).map(([category, products]) => (
+        <div key={category} className="category">
+          <h2>{category}</h2>
+          <div className="product-list">
+            {products.map((product) => (
+              <div key={product.id} className="product-card">
+                <img src={product.img} alt={product.name} />
+                <h3>{product.name}</h3>
+                <p>₹{product.price}</p>
                 <button
-                  disabled={added}
-                  onClick={() => dispatch(addToCart(p))}
+                  onClick={() => handleAddToCart(product)}
+                  disabled={addedItems.includes(product.id)}
                 >
-                  {added ? "Added" : "Add to Cart"}
+                  {addedItems.includes(product.id) ? "Added" : "Add to Cart"}
                 </button>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
-}
+};
 
 export default ProductList;

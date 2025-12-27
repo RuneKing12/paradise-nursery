@@ -1,37 +1,59 @@
-import { useDispatch, useSelector } from "react-redux";
-import { increase, decrease, remove } from "../redux/CartSlice";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { removeItem, updateQuantity } from "../redux/CartSlice";
 import { Link } from "react-router-dom";
 
-function CartItem() {
+const CartItem = () => {
+  const cartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
-  const items = useSelector((state) => state.cart.items);
 
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const handleIncrement = (id, current) => {
+    dispatch(updateQuantity({ id, quantity: current + 1 }));
+  };
+
+  const handleDecrement = (id, current) => {
+    if (current > 1) dispatch(updateQuantity({ id, quantity: current - 1 }));
+  };
+
+  const handleRemove = (id) => {
+    dispatch(removeItem(id));
+  };
+
+  const totalAmount = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
 
   return (
-    <div className="cart">
+    <div className="cart-page">
       <h2>Your Cart</h2>
-
-      {items.map((i) => (
-        <div className="cart-item" key={i.id}>
-          <img src={i.img} width="100" />
+      {cartItems.map((item) => (
+        <div key={item.id} className="cart-item">
+          <img src={item.img} alt={item.name} />
           <div>
-            <h3>{i.name}</h3>
-            <p>₹{i.price}</p>
-            <button onClick={() => dispatch(decrease(i.id))}>-</button>
-            {i.quantity}
-            <button onClick={() => dispatch(increase(i.id))}>+</button>
-            <button onClick={() => dispatch(remove(i.id))}>Delete</button>
+            <h3>{item.name}</h3>
+            <p>Unit Price: ₹{item.price}</p>
+            <p>Total: ₹{item.price * item.quantity}</p>
+            <div className="cart-buttons">
+              <button onClick={() => handleDecrement(item.id, item.quantity)}>
+                -
+              </button>
+              <span>{item.quantity}</span>
+              <button onClick={() => handleIncrement(item.id, item.quantity)}>
+                +
+              </button>
+              <button onClick={() => handleRemove(item.id)}>Delete</button>
+            </div>
           </div>
         </div>
       ))}
-
-      <h3>Total: ₹{total}</h3>
-      <button>Checkout (Coming Soon)</button>
-      <br />
-      <Link to="/plants">Continue Shopping</Link>
+      <h3>Total Amount: ₹{totalAmount}</h3>
+      <button onClick={() => alert("Coming Soon")}>Checkout</button>
+      <Link to="/plants">
+        <button>Continue Shopping</button>
+      </Link>
     </div>
   );
-}
+};
 
 export default CartItem;
